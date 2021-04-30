@@ -13,7 +13,9 @@ from scipy.stats import shapiro
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import KFold, cross_val_score
 #from sklearn.preprocessing import SimpleImputer
+from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import KNNImputer,SimpleImputer
+from sklearn.impute import IterativeImputer
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.metrics import roc_auc_score, roc_curve, classification_report, confusion_matrix
@@ -147,8 +149,28 @@ df_knn5 = pd.DataFrame(imputer.fit_transform(df),columns =  df.columns)
 # In[78]:
 
 
-df1 = df.loc[df.Outcome == 1]
-df0 = df.loc[df.Outcome == 0]
+df4Imp = df.loc[df.Insulin != 0]
+
+imp = IterativeImputer(max_iter=10, random_state=0)
+
+imp.fit(df4Imp)
+
+imp_test = df.loc[df.Insulin == 0]
+
+df_imp = pd.DataFrame(np.round(imp.transform(imp_test)),columns = df.columns)
+
+print(df_imp.head())
+
+#%%
+
+print(df4Imp.head())
+
+corr = df4Imp.corr(method='pearson')
+
+fig, ax =  plt.subplots(figsize = (20,10))
+ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
+
+#%%
 
 imputer = KNNImputer(n_neighbors= 30)
 
