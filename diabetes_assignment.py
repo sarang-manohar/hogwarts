@@ -31,7 +31,10 @@ raw_data.sample(5)
 
 # ### The Pima Indians Diabetes Dataset involves predicting the onset of diabetes within 5 years in Pima Indians given medical details.
 # 
-# It is a binary (2-class) classification problem. The number of observations for each class is not balanced. There are 768 observations with 8 input variables and 1 output variable. Missing values are believed to be encoded with zero values. The variable names are as follows:
+# It is a binary (2-class) classification problem. The number of observations 
+# for each class is not balanced. There are 768 observations with 8 input variables 
+# and 1 output variable. Missing values are believed to be encoded with zero values. 
+# The variable names are as follows:
 # 
 # 1. Number of times pregnant.
 # 2. Plasma glucose concentration a 2 hours in an oral glucose tolerance test.
@@ -44,42 +47,36 @@ raw_data.sample(5)
 # 9. Class variable (0 or 1).
 
 # In[70]:
+    
+#Univariate analysis checking the normal distribution
 
 
-for x in raw_data.drop('Outcome',axis=1).columns:
-    print('Distribution chart for ',format(x))
-#    print(shapiro(raw_data[(raw_data[x] != 0 )][x]))
-    s_stats, s_p_value = shapiro(raw_data[(raw_data[x] != 0 )][x])
-    sns.displot( data = raw_data, x=x)
-    plt.show()
-    if s_p_value >= 0.05:
-        print('Based on Shapiro-Wilk test data for',x,'is normally distributed.\n\n')
-    else:
-        print('Based on Shapiro-Wilk test data for',x,'is NOT normally distributed.\n\n')
-
+# for x in raw_data.drop('Outcome',axis=1).columns:
+#     print('Distribution chart for ',format(x))
+#     s_stats, s_p_value = shapiro(raw_data[(raw_data[x] != 0 )][x])
+#     sns.displot( data = raw_data, x=x)
+#     plt.show()
+#     if s_p_value >= 0.05:
+#         print('Based on Shapiro-Wilk test data for',x,'is normally distributed.\n\n')
+#     else:
+#         print('Based on Shapiro-Wilk test data for',x,'is NOT normally distributed.\n\n')
 
 # In[71]:
 
-
-corr = raw_data.drop('Outcome',axis=1).corr(method='pearson')
+corr = raw_data.corr(method='pearson')
 
 fig, ax =  plt.subplots(figsize = (20,10))
 ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
-
+plt.show()
 
 # In[72]:
 
-
-for x in raw_data.drop('Outcome',axis=1).columns:
-    sns.violinplot(data = raw_data, x='Outcome', y=x)
-    plt.show()
-
+#sns.pairplot(data = raw_data)
+#plt.show()
 
 # In[73]:
 
-
-raw_data.columns
-
+print(raw_data.columns)
 
 # In[74]:
 
@@ -120,80 +117,24 @@ df0 = df0.replace({'DiabetesPedigreeFunction':0},np.median(df0['DiabetesPedigree
 union = [df1,df0]
 df = pd.concat(union)
 
-
-# In[75]:
-
-
-for x in ['SkinThickness', 'Insulin']:
-    df[x] = df[x].replace(0,np.nan)
-    
-df.sample(10)
-
-
 # In[76]:
 
+corr = raw_data.loc[raw_data.Insulin != 0].corr(method='pearson')
 
-imputer = KNNImputer(n_neighbors= 30)
-
-df_knn30 = pd.DataFrame(imputer.fit_transform(df),columns =  df.columns)
+fig, ax =  plt.subplots(figsize = (20,10))
+ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
+plt.show()
 
 
 # In[77]:
 
-
-imputer = KNNImputer(n_neighbors= 5)
-
-df_knn5 = pd.DataFrame(imputer.fit_transform(df),columns =  df.columns)
-
-
-# In[78]:
-
-
-df4Imp = df.loc[df.Insulin != 0]
-
-imp = IterativeImputer(max_iter=10, random_state=0)
-
-imp.fit(df4Imp)
-
-imp_test = df.loc[df.Insulin == 0]
-
-df_imp = pd.DataFrame(np.round(imp.transform(imp_test)),columns = df.columns)
-
-print(df_imp.head())
-
-#%%
-
-print(df4Imp.head())
-
-corr = df4Imp.corr(method='pearson')
+corr = raw_data.loc[raw_data.SkinThickness != 0].corr(method='pearson')
 
 fig, ax =  plt.subplots(figsize = (20,10))
 ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
+plt.show()
 
 #%%
-
-imputer = KNNImputer(n_neighbors= 30)
-
-df1_knn30 = pd.DataFrame(imputer.fit_transform(df1),columns =  df.columns)
-df0_knn30 = pd.DataFrame(imputer.fit_transform(df0),columns =  df.columns)
-
-union = [df1_knn30,df0_knn30]
-dfs_knn30 = pd.concat(union)
-
-
-# In[79]:
-
-
-imputer = KNNImputer(n_neighbors= 5)
-
-df1_knn5 = pd.DataFrame(imputer.fit_transform(df1),columns =  df.columns)
-df0_knn5 = pd.DataFrame(imputer.fit_transform(df0),columns =  df.columns)
-
-union = [df1_knn5,df0_knn5]
-dfs_knn5 = pd.concat(union)
-
-
-# In[80]:
 
 def model_fit(dataset):
     values = dataset.values
@@ -204,170 +145,61 @@ def model_fit(dataset):
     result = cross_val_score(lda, X, Y, cv = kfold, scoring="accuracy")
     print("Result of LDA:", result.mean())
 
-# Link to LDA UDF
-# https://github.com/ashishpatel26/Pima-Indians-Diabetes-Dataset-Missing-Value-Imputation/blob/master/Readme.md
+
+# In[78]:
+
+df['SkinThickness'] = df['SkinThickness'].replace(0,np.nan)
+
+imputer = IterativeImputer(max_iter=10, random_state=0)
+
+dfSTImputed = pd.DataFrame(imputer.fit_transform(df.drop('Insulin',axis=1)),
+                           columns=df.drop('Insulin',axis=1).columns)
+
+print(dfSTImputed)
+
+corr = dfSTImputed.corr(method='pearson')
+
+fig, ax =  plt.subplots(figsize = (20,10))
+ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
+
+
+#%%
+
+df['SkinThickness'] = dfSTImputed['SkinThickness']
+
+df['Insulin'] = df['Insulin'].replace(0,np.nan)
+
+dfInsulinImputed = pd.DataFrame(imputer.fit_transform(df),
+                           columns=df.columns)
+
+print(dfInsulinImputed.head())
+
+corr = dfInsulinImputed.corr(method='pearson')
+
+fig, ax =  plt.subplots(figsize = (20,10))
+ax = sns.heatmap(corr,cmap = 'Blues',fmt='.2g',annot=True)
+plt.show()
 
 model_fit(raw_data)
 
-model_fit(df)
-
-model_fit(dfs_knn5)
-
-model_fit(dfs_knn30)
-
-model_fit(df_knn5)
-
-model_fit(df_knn30)
-
-# df1 = df.loc[df.Outcome == 1]
-# df0 = df.loc[df.Outcome == 0]
-# 
-# df1 = df1.replace({'Insulin':0},np.mean(df1['Insulin']))
-# df0 = df0.replace({'Insulin':0},np.mean(df0['Insulin']))
-# 
-# union = [df1,df0]
-# df = pd.concat(union)
-# 
-# df1 = df.loc[df.Outcome == 1]
-# df0 = df.loc[df.Outcome == 0]
-# 
-# df1 = df1.replace({'SkinThickness':0},np.mean(df1['SkinThickness']))
-# df0 = df0.replace({'SkinThickness':0},np.mean(df0['SkinThickness']))
-# 
-# union = [df1,df0]
-# df = pd.concat(union)
-
-# In[81]:
-
-
-sns.violinplot(data = raw_data, x='Outcome', y = 'Insulin')
-plt.show()
-sns.violinplot(data = df_knn30, x='Outcome', y = 'Insulin')
-plt.show()
-
-
-# In[82]:
-
-
-sns.violinplot(data = raw_data, x='Outcome', y = 'Insulin')
-plt.show()
-sns.violinplot(data = df_knn5, x='Outcome', y = 'Insulin')
-plt.show()
-
-
-# In[83]:
-
-
-sns.violinplot(data = raw_data, x='Outcome', y = 'Insulin')
-plt.show()
-sns.violinplot(data = dfs_knn30, x='Outcome', y = 'Insulin')
-plt.show()
-
-
-# In[84]:
-
-
-sns.violinplot(data = raw_data, x='Outcome', y = 'Insulin')
-plt.show()
-sns.violinplot(data = dfs_knn5, x='Outcome', y = 'Insulin')
-plt.show()
-
-
-# In[85]:
-
-
-sns.displot(data=df_knn30, x = 'Insulin')
-plt.show()
-
-sns.displot(data=dfs_knn30, x = 'Insulin')
-plt.show()
-
-
-# In[86]:
-
-
-sns.displot(data=df_knn5, x = 'Insulin')
-plt.show()
-
-sns.displot(data=dfs_knn5, x = 'Insulin')
-plt.show()
-
-
-# In[87]:
-
-
-shapiro(dfs_knn5.Insulin)
-
-
-# In[88]:
-
-
-shapiro(df_knn5.Insulin)
-
-
-# In[89]:
-
-
-sns.displot(data=raw_data, x = 'Insulin')
-plt.show()
-
-sns.displot(data=df_knn5, x = 'Insulin')
-plt.show()
-
-
-# In[90]:
-
-
-df_val = pd.DataFrame()
-
-for x in df.drop('Outcome',axis=1).columns:
-    df_val[x]=raw_data[x].replace(0,np.nan)
-
-
-# In[91]:
-
-
-(df_val.isnull().sum()/768)
-
-
-# In[92]:
-
-
-sns.displot( data = df, x='Insulin')
-
-
-# In[93]:
-
-
-df1 = df.loc[df.Outcome == 1]
-df0 = df.loc[df.Outcome == 0]
-
-
-# In[94]:
-
-
-sns.displot( data = df, x='Insulin')
-
-
-# In[95]:
-
-
-sns.displot( data = df, x='SkinThickness')
-
+model_fit(dfInsulinImputed)
 
 # In[96]:
 
 
-X = dfs_knn5.drop({'Outcome'}, axis=1)
+X = dfInsulinImputed.drop({'Outcome'}, axis=1)
 
-y = dfs_knn5.pop('Outcome')
+y = dfInsulinImputed.pop('Outcome')
 
 
 # In[97]:
 
+splt= float(input('Train/Test split : ')) # 0.2
+max_dpth = int(input('Max Depth of Decision Tree : ')) # 7
+min_smpl_splt = int(input('Min Samples before split : ')) # 80
 
-X_train, X_test, train_labels, test_labels = train_test_split(X,y,test_size=0.20, random_state=1)
-reg_dt_model_gini = DecisionTreeClassifier(criterion = 'gini',max_depth=7,min_samples_split=80,random_state=0)
+X_train, X_test, train_labels, test_labels = train_test_split(X,y,test_size=splt, random_state=1)
+reg_dt_model_gini = DecisionTreeClassifier(criterion = 'gini',max_depth=max_dpth,min_samples_split=min_smpl_splt,random_state=0)
 reg_dt_model_gini.fit(X_train, train_labels)
 
 probs = reg_dt_model_gini.predict_proba(X_train)[:,1]
@@ -387,13 +219,7 @@ plt.plot(fpr,tpr,marker='o')
 plt.show()
 
 
-# In[98]:
-
-
 pd.DataFrame(reg_dt_model_gini.feature_importances_, columns = ['Imp'], index = X_train.columns).sort_values(by='Imp',ascending = False)
-
-
-# In[99]:
 
 
 ytrain_predict = reg_dt_model_gini.predict(X_train)
