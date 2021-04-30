@@ -182,6 +182,9 @@ def model_fit(dataset):
     result = cross_val_score(lda, X, Y, cv = kfold, scoring="accuracy")
     print("Result of LDA:", result.mean())
 
+# Link to LDA UDF
+# https://github.com/ashishpatel26/Pima-Indians-Diabetes-Dataset-Missing-Value-Imputation/blob/master/Readme.md
+
 model_fit(raw_data)
 
 model_fit(df)
