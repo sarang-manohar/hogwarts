@@ -7,13 +7,13 @@
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 import seaborn as sns
 from scipy.stats import shapiro 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import KFold, cross_val_score
 #from sklearn.preprocessing import SimpleImputer
-from sklearn.impute import KNNImputer
+from sklearn.impute import KNNImputer,SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.metrics import roc_auc_score, roc_curve, classification_report, confusion_matrix
@@ -173,23 +173,26 @@ dfs_knn5 = pd.concat(union)
 
 # In[80]:
 
-
-df_knn30
-dfs_knn5.head()
-
 def model_fit(dataset):
     values = dataset.values
     X = values[:,1:8]
     Y = values[:,8]
     lda = LinearDiscriminantAnalysis()
-    kfold = KFold(n_splits=3, random_state=7)
+    kfold = KFold(n_splits=3)
     result = cross_val_score(lda, X, Y, cv = kfold, scoring="accuracy")
     print("Result of LDA:", result.mean())
 
 model_fit(raw_data)
 
-dfs_knn5.head()
+model_fit(df)
+
 model_fit(dfs_knn5)
+
+model_fit(dfs_knn30)
+
+model_fit(df_knn5)
+
+model_fit(df_knn30)
 
 # df1 = df.loc[df.Outcome == 1]
 # df0 = df.loc[df.Outcome == 0]
