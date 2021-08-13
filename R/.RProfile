@@ -1,0 +1,4 @@
+.First <- function() {
+  path_to_libraries <- "D:\R\R-4.1.0\library" 
+  .libPaths(c(path_to_libraries, .libPaths()))
+}
