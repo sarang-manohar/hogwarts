@@ -1,10 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "tchpnt-predcitor"
-		},
-		{
-			"path": "api4affinityscores"
+			"path": "."
 		}
 	],
 	"settings": {}
