@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/home/sarang/Downloads/New Orders.db" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><current_tab id="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2599"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="PRODUCT"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="ADDRESS" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="PRODUCT" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="5" mode="0"/></sort><column_widths><column index="4" value="213"/><column index="5" value="288"/></column_widths><filter_values/><display_formats><column index="5" value=""/></display_formats><hidden_columns/><plot_y_axes/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">/*
+Q1. Write a query to Display the product details (product_class_code, product_id, product_desc, product_price,) 
+as per the following criteria and sort them in descending order of category: 
+a. If the category is 2050, increase the price by 2000 
+b. If the category is 2051, increase the price by 500 
+c. If the category is 2052, increase the price by 600. 
+Hint: Use case statement. no permanent change in table required. (60 ROWS) [NOTE: PRODUCT TABLE]*/
+select prd.PRODUCT_CLASS_CODE, prd.PRODUCT_ID, PRODUCT_DESC, PRODUCT_PRICE as original_price,
+case prd.PRODUCT_CLASS_CODE
+	when 2050 then PRODUCT_PRICE + 2000
+	when 2051 then PRODUCT_PRICE + 500
+	when 2052 then PRODUCT_PRICE + 600
+	else 'Same as original' 
+end as modified_price
+from PRODUCT prd 
+	left outer join PRODUCT_CLASS prd_cls
+	on prd.PRODUCT_CLASS_CODE = prd_cls.PRODUCT_CLASS_CODE
+order by prd.PRODUCT_CLASS_CODE desc
+
+/*
+Q2. Write a query to display (product_class_desc, product_id, product_desc, product_quantity_avail ) and Show inventory status of products as below as per their available quantity: 
+a. For Electronics and Computer categories, if available quantity is &lt;= 10, show 'Low stock', 11 &lt;= qty &lt;= 30, show 'In stock', &gt;= 31, show 'Enough stock' 
+b. For Stationery and Clothes categories, if qty &lt;= 20, show 'Low stock', 21 &lt;= qty &lt;= 80, show 'In stock', &gt;= 81, show 'Enough stock' 
+c. Rest of the categories, if qty &lt;= 15 – 'Low Stock', 16 &lt;= qty &lt;= 50 – 'In Stock', &gt;= 51 – 'Enough stock' 
+For all categories, if available quantity is 0, show 'Out of stock'. Hint: Use case statement. 
+(60 ROWS) [NOTE: TABLES TO BE USED – product, product_class]*/
+select PRODUCT_CLASS_DESC, prd.PRODUCT_ID, PRODUCT_DESC, PRODUCT_QUANTITY_AVAIL,
+case 
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &lt;= 10 then 'Low stock'
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL between 11 and 30 then 'In stock'
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &gt;= 31 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL &lt;= 20 then 'Low stock'
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL between 21 and 80 then 'In stock'
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL &gt;= 81 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &lt;= 15 then 'Low stock'
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL BETWEEN 16 and 50 then 'In stock'
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &gt;= 51 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+end as Inventory_Status
+from PRODUCT prd 
+	left outer join PRODUCT_CLASS prd_cls
+	on prd.PRODUCT_CLASS_CODE = prd_cls.PRODUCT_CLASS_CODE
+order by 1
+
+/*
+Q3. Write a query to Show the count of cities in all countries other than USA &amp; MALAYSIA, with more than 1 city, in the descending order of CITIES. 
+(2 rows) [NOTE: ADDRESS TABLE, Do not use Distinct]*/
+select country, count(city) 
+from (select country, city, max(counter) 
+	from (select country, city, 1 as counter 
+		from ADDRESS 
+		where country not in ('USA', 'Malaysia')) 
+	group by country, city) 
+group by country having count(city) &gt; 1</sql><current_tab id="0"/></tab_sql></sqlb_project>
