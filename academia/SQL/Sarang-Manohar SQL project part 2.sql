@@ -30,7 +30,7 @@ order by 1;
 9. Write a query to display the order_id, customer id and cutomer full name of customers 
 along with (product_quantity) as total quantity of products shipped for order ids > 10060. 
 (6 ROWS) [NOTE: TABLES TO BE USED - online_customer, order_header, order_items]*/
-select ordr_itm.order_id, cust.customer_id, concat(customer_fname,' ',customer_lname) as customer_fullname, ordr_itm.order_id, total_order_quantity
+select ordr_itm.order_id, cust.customer_id, concat(customer_fname,' ',customer_lname) as customer_fullname, total_order_quantity
 	from ONLINE_CUSTOMER cust
 	left outer join ORDER_HEADER ordr_head
     on cust.customer_id = ordr_head.customer_id

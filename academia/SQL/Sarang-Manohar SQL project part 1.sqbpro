@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/home/sarang/Downloads/New Orders.db" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><current_tab id="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2599"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="PRODUCT"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="ADDRESS" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="PRODUCT" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="5" mode="0"/></sort><column_widths><column index="4" value="213"/><column index="5" value="288"/></column_widths><filter_values/><display_formats><column index="5" value=""/></display_formats><hidden_columns/><plot_y_axes/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">/*
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/home/sarang/Downloads/New Orders.db" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><current_tab id="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2599"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="ONLINE_CUSTOMER"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="ADDRESS" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="ONLINE_CUSTOMER" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="4" mode="1"/></sort><column_widths><column index="4" value="226"/></column_widths><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="ORDER_HEADER" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="PRODUCT" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="5" mode="0"/></sort><column_widths><column index="4" value="213"/><column index="5" value="288"/></column_widths><filter_values/><display_formats><column index="5" value=""/></display_formats><hidden_columns/><plot_y_axes/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">/*
 Q1. Write a query to Display the product details (product_class_code, product_id, product_desc, product_price,) 
 as per the following criteria and sort them in descending order of category: 
 a. If the category is 2050, increase the price by 2000 
@@ -53,4 +53,54 @@ from (select country, city, max(counter)
 		from ADDRESS 
 		where country not in ('USA', 'Malaysia')) 
 	group by country, city) 
-group by country having count(city) &gt; 1</sql><current_tab id="0"/></tab_sql></sqlb_project>
+group by country having count(city) &gt; 1
+
+/*
+Q4. Write a query to display the customer_id,customer full name ,city,pincode,and order details (order id, product class desc, product desc, 
+subtotal(product_quantity * product_price)) for orders shipped to cities whose pin codes do not have any 0s in them. Sort the output on 
+customer name and subtotal. 
+(52 ROWS) [NOTE: TABLE TO BE USED - online_customer, address, order_header, order_items, product, product_class]*/
+select cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME as CUSTOMER_FULLNAME,CITY, PINCODE, ordr_itms.ORDER_ID, PRODUCT_CLASS_DESC, PRODUCT_DESC, sum(PRODUCT_QUANTITY*PRODUCT_PRICE) as SUBTOTAL
+	from ONLINE_CUSTOMER cust
+	left OUTER JOIN ADDRESS addr 
+	on cust.ADDRESS_ID = addr.ADDRESS_ID
+	left outer join ORDER_HEADER ordr_hdr
+	on cust.CUSTOMER_ID = ordr_hdr.CUSTOMER_ID
+	left outer join ORDER_ITEMS ordr_itms
+	on ordr_hdr.ORDER_ID = ordr_itms.ORDER_ID
+	left outer join PRODUCT prod
+	on prod.PRODUCT_ID = ordr_itms.PRODUCT_ID
+	left outer join PRODUCT_CLASS prod_cls
+	on prod.PRODUCT_CLASS_CODE = prod_cls.PRODUCT_CLASS_CODE
+where ordr_hdr.ORDER_STATUS = 'Shipped'
+and PINCODE not like '%0%'	
+group by cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME,CITY, PINCODE, ordr_itms.ORDER_ID, PRODUCT_CLASS_DESC, PRODUCT_DESC
+order by 2, 8
+
+/*
+Q5. Write a Query to display product id,product description,totalquantity(sum(product quantity) for an item which has been bought 
+maximum no. of times (Quantity Wise) along with product id 201. 
+(USE SUB-QUERY) (1 ROW) [NOTE: ORDER_ITEMS TABLE, PRODUCT TABLE]*/
+select ordr_itms.PRODUCT_ID, PRODUCT_DESC, sum(PRODUCT_QUANTITY) 
+	from ORDER_ITEMS ordr_itms
+	left outer join PRODUCT PROD
+	on ordr_itms.PRODUCT_ID = prod.PRODUCT_ID
+where ORDER_ID in (select ORDER_ID from ORDER_ITEMS where PRODUCT_ID=201)
+and ordr_itms.PRODUCT_ID&lt;&gt;201
+group by ordr_itms.PRODUCT_ID , PRODUCT_DESC
+order by 3 desc 
+limit 1
+
+/*
+Q6. Write a query to display the customer_id,customer name, email and order details (order id, product desc,product qty, subtotal(product_quantity * product_price)) 
+for all customers even if they have not ordered any item.
+(225 ROWS) [NOTE: TABLE TO BE USED - online_customer, order_header, order_items, product]*/
+select cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME as CUSTOMER_FULLNAME,CUSTOMER_EMAIL, ordr_itms.ORDER_ID, PRODUCT_DESC, PRODUCT_QUANTITY, PRODUCT_QUANTITY*PRODUCT_PRICE as SUBTOTAL
+	from ONLINE_CUSTOMER cust
+	left outer join ORDER_HEADER ordr_hdr
+	on cust.CUSTOMER_ID = ordr_hdr.CUSTOMER_ID
+	left outer join ORDER_ITEMS ordr_itms
+	on ordr_hdr.ORDER_ID = ordr_itms.ORDER_ID
+	left outer join PRODUCT prod
+	on prod.PRODUCT_ID = ordr_itms.PRODUCT_ID
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
