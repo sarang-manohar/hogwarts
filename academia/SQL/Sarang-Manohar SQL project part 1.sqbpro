@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/home/sarang/Downloads/New Orders.db" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><current_tab id="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2599"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="ONLINE_CUSTOMER"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="ADDRESS" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="ONLINE_CUSTOMER" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="4" mode="1"/></sort><column_widths><column index="4" value="226"/></column_widths><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="ORDER_HEADER" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort/><column_widths/><filter_values/><display_formats/><hidden_columns/><plot_y_axes/></table><table schema="main" name="PRODUCT" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk=""><sort><column index="5" mode="0"/></sort><column_widths><column index="4" value="213"/><column index="5" value="288"/></column_widths><filter_values/><display_formats><column index="5" value=""/></display_formats><hidden_columns/><plot_y_axes/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">/*
+Q1. Write a query to Display the product details (product_class_code, product_id, product_desc, product_price,) 
+as per the following criteria and sort them in descending order of category: 
+a. If the category is 2050, increase the price by 2000 
+b. If the category is 2051, increase the price by 500 
+c. If the category is 2052, increase the price by 600. 
+Hint: Use case statement. no permanent change in table required. (60 ROWS) [NOTE: PRODUCT TABLE]*/
+select prd.PRODUCT_CLASS_CODE, prd.PRODUCT_ID, PRODUCT_DESC, PRODUCT_PRICE as original_price,
+case prd.PRODUCT_CLASS_CODE
+	when 2050 then PRODUCT_PRICE + 2000
+	when 2051 then PRODUCT_PRICE + 500
+	when 2052 then PRODUCT_PRICE + 600
+	else 'Same as original' 
+end as modified_price
+from PRODUCT prd 
+	left outer join PRODUCT_CLASS prd_cls
+	on prd.PRODUCT_CLASS_CODE = prd_cls.PRODUCT_CLASS_CODE
+order by prd.PRODUCT_CLASS_CODE desc
+
+/*
+Q2. Write a query to display (product_class_desc, product_id, product_desc, product_quantity_avail ) and Show inventory status of products as below as per their available quantity: 
+a. For Electronics and Computer categories, if available quantity is &lt;= 10, show 'Low stock', 11 &lt;= qty &lt;= 30, show 'In stock', &gt;= 31, show 'Enough stock' 
+b. For Stationery and Clothes categories, if qty &lt;= 20, show 'Low stock', 21 &lt;= qty &lt;= 80, show 'In stock', &gt;= 81, show 'Enough stock' 
+c. Rest of the categories, if qty &lt;= 15 – 'Low Stock', 16 &lt;= qty &lt;= 50 – 'In Stock', &gt;= 51 – 'Enough stock' 
+For all categories, if available quantity is 0, show 'Out of stock'. Hint: Use case statement. 
+(60 ROWS) [NOTE: TABLES TO BE USED – product, product_class]*/
+select PRODUCT_CLASS_DESC, prd.PRODUCT_ID, PRODUCT_DESC, PRODUCT_QUANTITY_AVAIL,
+case 
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &lt;= 10 then 'Low stock'
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL between 11 and 30 then 'In stock'
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &gt;= 31 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC in ('Electronics','Computer') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL &lt;= 20 then 'Low stock'
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL between 21 and 80 then 'In stock'
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL &gt;= 81 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC in ('Clothes','Stationery') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &lt;= 15 then 'Low stock'
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL BETWEEN 16 and 50 then 'In stock'
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL &gt;= 51 then 'Enough stock' 
+	when PRODUCT_CLASS_DESC not in ('Clothes','Stationery','Electronics','Computer') and PRODUCT_QUANTITY_AVAIL = 0 then 'Out of stock' 
+end as Inventory_Status
+from PRODUCT prd 
+	left outer join PRODUCT_CLASS prd_cls
+	on prd.PRODUCT_CLASS_CODE = prd_cls.PRODUCT_CLASS_CODE
+order by 1
+
+/*
+Q3. Write a query to Show the count of cities in all countries other than USA &amp; MALAYSIA, with more than 1 city, in the descending order of CITIES. 
+(2 rows) [NOTE: ADDRESS TABLE, Do not use Distinct]*/
+select country, count(city) 
+from (select country, city, max(counter) 
+	from (select country, city, 1 as counter 
+		from ADDRESS 
+		where country not in ('USA', 'Malaysia')) 
+	group by country, city) 
+group by country having count(city) &gt; 1
+
+/*
+Q4. Write a query to display the customer_id,customer full name ,city,pincode,and order details (order id, product class desc, product desc, 
+subtotal(product_quantity * product_price)) for orders shipped to cities whose pin codes do not have any 0s in them. Sort the output on 
+customer name and subtotal. 
+(52 ROWS) [NOTE: TABLE TO BE USED - online_customer, address, order_header, order_items, product, product_class]*/
+select cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME as CUSTOMER_FULLNAME,CITY, PINCODE, ordr_itms.ORDER_ID, PRODUCT_CLASS_DESC, PRODUCT_DESC, sum(PRODUCT_QUANTITY*PRODUCT_PRICE) as SUBTOTAL
+	from ONLINE_CUSTOMER cust
+	left OUTER JOIN ADDRESS addr 
+	on cust.ADDRESS_ID = addr.ADDRESS_ID
+	left outer join ORDER_HEADER ordr_hdr
+	on cust.CUSTOMER_ID = ordr_hdr.CUSTOMER_ID
+	left outer join ORDER_ITEMS ordr_itms
+	on ordr_hdr.ORDER_ID = ordr_itms.ORDER_ID
+	left outer join PRODUCT prod
+	on prod.PRODUCT_ID = ordr_itms.PRODUCT_ID
+	left outer join PRODUCT_CLASS prod_cls
+	on prod.PRODUCT_CLASS_CODE = prod_cls.PRODUCT_CLASS_CODE
+where ordr_hdr.ORDER_STATUS = 'Shipped'
+and PINCODE not like '%0%'	
+group by cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME,CITY, PINCODE, ordr_itms.ORDER_ID, PRODUCT_CLASS_DESC, PRODUCT_DESC
+order by 2, 8
+
+/*
+Q5. Write a Query to display product id,product description,totalquantity(sum(product quantity) for an item which has been bought 
+maximum no. of times (Quantity Wise) along with product id 201. 
+(USE SUB-QUERY) (1 ROW) [NOTE: ORDER_ITEMS TABLE, PRODUCT TABLE]*/
+select ordr_itms.PRODUCT_ID, PRODUCT_DESC, sum(PRODUCT_QUANTITY) 
+	from ORDER_ITEMS ordr_itms
+	left outer join PRODUCT PROD
+	on ordr_itms.PRODUCT_ID = prod.PRODUCT_ID
+where ORDER_ID in (select ORDER_ID from ORDER_ITEMS where PRODUCT_ID=201)
+and ordr_itms.PRODUCT_ID&lt;&gt;201
+group by ordr_itms.PRODUCT_ID , PRODUCT_DESC
+order by 3 desc 
+limit 1
+
+/*
+Q6. Write a query to display the customer_id,customer name, email and order details (order id, product desc,product qty, subtotal(product_quantity * product_price)) 
+for all customers even if they have not ordered any item.
+(225 ROWS) [NOTE: TABLE TO BE USED - online_customer, order_header, order_items, product]*/
+select cust.CUSTOMER_ID, CUSTOMER_FNAME||' '||CUSTOMER_LNAME as CUSTOMER_FULLNAME,CUSTOMER_EMAIL, ordr_itms.ORDER_ID, PRODUCT_DESC, PRODUCT_QUANTITY, PRODUCT_QUANTITY*PRODUCT_PRICE as SUBTOTAL
+	from ONLINE_CUSTOMER cust
+	left outer join ORDER_HEADER ordr_hdr
+	on cust.CUSTOMER_ID = ordr_hdr.CUSTOMER_ID
+	left outer join ORDER_ITEMS ordr_itms
+	on ordr_hdr.ORDER_ID = ordr_itms.ORDER_ID
+	left outer join PRODUCT prod
+	on prod.PRODUCT_ID = ordr_itms.PRODUCT_ID
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
