@@ -1,0 +1,4 @@
+{"ENDPOINT" : "https://leafclass.cognitiveservices.azure.com/",
+"training_key" : "e325d2b0d1f34c169103adb4128a35e7",
+"prediction_key" : "41d15de80ee24bc1aeeee011c3309dfd",
+"prediction_resource_id" : "/subscriptions/7e549871-41a3-4163-af83-5546a9679c54/resourceGroups/sig788-task4/providers/Microsoft.CognitiveServices/accounts/leafclass-Prediction"}
