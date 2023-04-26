@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "azureBotId": {
+            "value": "sig788task7-bot"
+        },
+        "azureBotSku": {
+            "value": "S1"
+        },
+        "azureBotRegion": {
+            "value": "global"
+        },
+        "botEndpoint": {
+            "value": "https://sig788task7-webapp.azurewebsites.net/api/messages"
+        },
+        "appId": {
+            "value": "276b5d9f-de43-4124-bfe9-9d91ce16a7dd"
+        }
+    }
+}

@@ -1,0 +1,5 @@
+botbuilder-integration-aiohttp
+botbuilder-core
+cookiecutter==1.7.0
+azure-core
+azure-ai-textanalytics

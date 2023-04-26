@@ -1,0 +1,77 @@
+{
+  "acceptMappedClaims": null,
+  "addIns": [],
+  "allowGuestsSignIn": null,
+  "allowPassthroughUsers": null,
+  "appId": "599aecdc-0506-4958-83cd-53d9e7b0367f",
+  "appLogoUrl": null,
+  "appPermissions": null,
+  "appRoles": [],
+  "applicationTemplateId": null,
+  "availableToOtherTenants": true,
+  "deletionTimestamp": null,
+  "displayName": "sig788task6-pii",
+  "errorUrl": null,
+  "groupMembershipClaims": null,
+  "homepage": null,
+  "identifierUris": [],
+  "informationalUrls": {
+    "marketing": null,
+    "privacy": null,
+    "support": null,
+    "termsOfService": null
+  },
+  "isDeviceOnlyAuthSupported": null,
+  "keyCredentials": [],
+  "knownClientApplications": [],
+  "logo@odata.mediaEditLink": "directoryObjects/3dcfc78a-4635-45bd-ba1a-262df458de14/Microsoft.DirectoryServices.Application/logo",
+  "logoUrl": null,
+  "logoutUrl": null,
+  "mainLogo@odata.mediaEditLink": "directoryObjects/3dcfc78a-4635-45bd-ba1a-262df458de14/Microsoft.DirectoryServices.Application/mainLogo",
+  "oauth2AllowIdTokenImplicitFlow": true,
+  "oauth2AllowImplicitFlow": false,
+  "oauth2AllowUrlPathMatching": false,
+  "oauth2Permissions": [
+    {
+      "adminConsentDescription": "Allow the application to access sig788task6-pii on behalf of the signed-in user.",
+      "adminConsentDisplayName": "Access sig788task6-pii",
+      "id": "3d9c2cb9-f99c-4eb5-a4d1-9148381b778a",
+      "isEnabled": true,
+      "type": "User",
+      "userConsentDescription": "Allow the application to access sig788task6-pii on your behalf.",
+      "userConsentDisplayName": "Access sig788task6-pii",
+      "value": "user_impersonation"
+    }
+  ],
+  "oauth2RequirePostResponse": false,
+  "objectId": "3dcfc78a-4635-45bd-ba1a-262df458de14",
+  "objectType": "Application",
+  "odata.metadata": "https://graph.windows.net/d02378ec-1688-46d5-8540-1c28b5f470f6/$metadata#directoryObjects/@Element",
+  "odata.type": "Microsoft.DirectoryServices.Application",
+  "optionalClaims": null,
+  "orgRestrictions": [],
+  "parentalControlSettings": {
+    "countriesBlockedForMinors": [],
+    "legalAgeGroupRule": "Allow"
+  },
+  "passwordCredentials": [
+    {
+      "additionalProperties": null,
+      "customKeyIdentifier": null,
+      "endDate": "2024-04-23T08:59:59.069614+00:00",
+      "keyId": "2469d6e7-80d0-4dfb-b8a3-b253084a827d",
+      "startDate": "2023-04-24T08:59:59.069614+00:00",
+      "value": null
+    }
+  ],
+  "preAuthorizedApplications": null,
+  "publicClient": null,
+  "publisherDomain": "deakin365.onmicrosoft.com",
+  "recordConsentConditions": null,
+  "replyUrls": [],
+  "requiredResourceAccess": [],
+  "samlMetadataUrl": null,
+  "signInAudience": "AzureADMultipleOrgs",
+  "tokenEncryptionKeyId": null,
+  "wwwHomepage": null
+}

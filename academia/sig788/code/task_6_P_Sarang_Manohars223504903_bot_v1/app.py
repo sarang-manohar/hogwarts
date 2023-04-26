@@ -15,7 +15,7 @@ from botbuilder.core import (
 from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.schema import Activity, ActivityTypes
 
-from task_7_HD_Sarang_Manohars223504903_P1_bot_v1 import MyBot
+from bot import MyBot
 from config import DefaultConfig
 
 CONFIG = DefaultConfig()

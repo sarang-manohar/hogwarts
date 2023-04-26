@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appServiceName": {
+            "value": "sig788task7-webapp"
+        },
+        "existingAppServicePlanName": {
+            "value": ""
+        },
+        "existingAppServicePlanLocation": {
+            "value": ""
+        },
+        "newAppServicePlanName": {
+            "value": "sig788task7-asp"
+        },
+        "newAppServicePlanLocation": {
+            "value": "westeurope"
+        },
+        "newAppServicePlanSku": {
+            "value": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            }
+        },
+        "appId": {
+            "value": "276b5d9f-de43-4124-bfe9-9d91ce16a7dd"
+        },
+        "appSecret": {
+            "value": "sig788-task7-identity-password"
+        }
+    }
+}

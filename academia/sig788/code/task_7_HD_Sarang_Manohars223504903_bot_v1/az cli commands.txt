@@ -1,0 +1,145 @@
+az ad app create --display-name "sig788-task7-identity" --password "sig788-task7-identity-password" --available-to-other-tenants
+
+{
+  "acceptMappedClaims": null,
+  "addIns": [],
+  "allowGuestsSignIn": null,
+  "allowPassthroughUsers": null,
+  "appId": "276b5d9f-de43-4124-bfe9-9d91ce16a7dd",
+  "appLogoUrl": null,
+  "appPermissions": null,
+  "appRoles": [],
+  "applicationTemplateId": null,
+  "availableToOtherTenants": true,
+  "deletionTimestamp": null,
+  "displayName": "sig788-task7-identity",
+  "errorUrl": null,
+  "groupMembershipClaims": null,
+  "homepage": null,
+  "identifierUris": [],
+  "informationalUrls": {
+    "marketing": null,
+    "privacy": null,
+    "support": null,
+    "termsOfService": null
+  },
+  "isDeviceOnlyAuthSupported": null,
+  "keyCredentials": [],
+  "knownClientApplications": [],
+  "logo@odata.mediaContentType": "application/json;odata=minimalmetadata; charset=utf-8",
+  "logo@odata.mediaEditLink": "directoryObjects/92eccc3c-9962-4e67-8c6c-7f783a65ced6/Microsoft.DirectoryServices.Application/logo",
+  "logoUrl": null,
+  "logoutUrl": null,
+  "mainLogo@odata.mediaEditLink": "directoryObjects/92eccc3c-9962-4e67-8c6c-7f783a65ced6/Microsoft.DirectoryServices.Application/mainLogo",
+  "oauth2AllowIdTokenImplicitFlow": true,
+  "oauth2AllowImplicitFlow": false,
+  "oauth2AllowUrlPathMatching": false,
+  "oauth2Permissions": [
+    {
+      "adminConsentDescription": "Allow the application to access sig788-task7-identity on behalf of the signed-in user.",
+      "adminConsentDisplayName": "Access sig788-task7-identity",
+      "id": "66754feb-d3e5-4ca9-ad0c-92c8eed649de",
+      "isEnabled": true,
+      "type": "User",
+      "userConsentDescription": "Allow the application to access sig788-task7-identity on your behalf.",
+      "userConsentDisplayName": "Access sig788-task7-identity",
+      "value": "user_impersonation"
+    }
+  ],
+  "oauth2RequirePostResponse": false,
+  "objectId": "92eccc3c-9962-4e67-8c6c-7f783a65ced6",
+  "objectType": "Application",
+  "odata.metadata": "https://graph.windows.net/d02378ec-1688-46d5-8540-1c28b5f470f6/$metadata#directoryObjects/@Element",
+  "odata.type": "Microsoft.DirectoryServices.Application",
+  "optionalClaims": null,
+  "orgRestrictions": [],
+  "parentalControlSettings": {
+    "countriesBlockedForMinors": [],
+    "legalAgeGroupRule": "Allow"
+  },
+  "passwordCredentials": [
+    {
+      "additionalProperties": null,
+      "customKeyIdentifier": null,
+      "endDate": "2024-04-21T07:32:59.898220+00:00",
+      "keyId": "5099e852-66e0-447d-a845-83cda60745a7",
+      "startDate": "2023-04-22T07:32:59.898220+00:00",
+      "value": null
+    }
+  ],
+  "preAuthorizedApplications": null,
+  "publicClient": null,
+  "publisherDomain": "deakin365.onmicrosoft.com",
+  "recordConsentConditions": null,
+  "replyUrls": [],
+  "requiredResourceAccess": [],
+  "samlMetadataUrl": null,
+  "signInAudience": "AzureADMultipleOrgs",
+  "tokenEncryptionKeyId": null,
+  "wwwHomepage": null
+}
+
+==============================================================================================================================================================
+
+az bot update --resource-group sig788task7 --name sig788-task7-bot-001 --endpoint https://sig788-task7-webapp.azurewebsites.net/api/messages
+
+{
+  "etag": "\"b8003b34-0000-1800-0000-644398380000\"",
+  "id": "/subscriptions/7e549871-41a3-4163-af83-5546a9679c54/resourceGroups/sig788task7/providers/Microsoft.BotService/botServices/sig788-task7-bot-001",
+  "kind": "azurebot",
+  "location": "global",
+  "name": "sig788-task7-bot-001",
+  "properties": {
+    "allSettings": null,
+    "appPasswordHint": "",
+    "cmekEncryptionStatus": "Off",
+    "cmekKeyVaultUrl": null,
+    "configuredChannels": [
+      "webchat",
+      "directline"
+    ],
+    "description": null,
+    "developerAppInsightKey": null,
+    "developerAppInsightsApiKey": null,
+    "developerAppInsightsApplicationId": null,
+    "disableLocalAuth": false,
+    "displayName": "sig788-task7-bot-001",
+    "enabledChannels": [
+      "webchat",
+      "directline"
+    ],
+    "endpoint": "https://sig788-task7-webapp.azurewebsites.net/api/messages",
+    "endpointVersion": "3.0",
+    "iconUrl": "https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png",
+    "isCmekEnabled": false,
+    "isDeveloperAppInsightsApiKeySet": false,
+    "isStreamingSupported": false,
+    "luisAppIds": [],
+    "luisKey": null,
+    "manifestUrl": null,
+    "migrationToken": null,
+    "msaAppId": "d29f3500-1b71-4ee4-9245-0b783bad3220",
+    "msaAppMSIResourceId": "",
+    "msaAppTenantId": "",
+    "msaAppType": "MultiTenant",
+    "openWithHint": "",
+    "parameters": null,
+    "provisioningState": "Succeeded",
+    "publicNetworkAccess": null,
+    "publishingCredentials": null,
+    "schemaTransformationVersion": "1.3",
+    "storageResourceId": null,
+    "tenantId": "d02378ec-1688-46d5-8540-1c28b5f470f6"
+  },
+  "resourceGroup": "sig788task7",
+  "sku": {
+    "name": "F0",
+    "tier": null
+  },
+  "tags": {},
+  "type": "Microsoft.BotService/botServices",
+  "zones": []
+}
+
+
+az webapp deployment source config-zip --resource-group "sig788task7" --name "sig788-task7-webapp" --src "C:\Users\saran\Documents\gitRepo\hogwarts\academia\sig788\code\task_7_HD_Sarang_Manohars223504903_bot_v1.zip"

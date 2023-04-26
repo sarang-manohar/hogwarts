@@ -1,12 +1,14 @@
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, Activity, ActivityTypes
 import requests
-from datetime import datetime
-import pytz
+
+from creds import DefaultCreds
+
+CREDS = DefaultCreds()
 
 class MyBot(ActivityHandler):
     def __init__(self):
-        self.API_KEY = "AIzaSyAAzu8U_tNbySGRkZy2n0VXnub21hn2gzA"  # Replace with your actual API key
+        self.API_KEY = CREDS.APP_GS_API_KEY  # Replace with your actual API key
 
     async def on_message_activity(self, turn_context: TurnContext):
         # Read user's input from activity.text
@@ -76,14 +78,8 @@ class MyBot(ActivityHandler):
         from azure.core.credentials import AzureKeyCredential
         from azure.ai.language.conversations.aio import ConversationAnalysisClient
 
-        # get secrets
-        clu_endpoint = "https://sig788-task7-ls-006.cognitiveservices.azure.com"
-        clu_key = "03dd4da6b78347dca783607c64bdf39e"
-        project_name = "sig788-task7-CLU-prj"
-        deployment_name = "sig788-task7-dpl-001"
-
         # create client
-        async with ConversationAnalysisClient(clu_endpoint, AzureKeyCredential(clu_key)) as client:
+        async with ConversationAnalysisClient(CREDS.APP_CLU_ENDPOINT, AzureKeyCredential(CREDS.APP_CLU_KEY)) as client:
             # send query
             result = await client.analyze_conversation(
                 task={
@@ -99,8 +95,8 @@ class MyBot(ActivityHandler):
                         "isLoggingEnabled": False
                     },
                     "parameters": {
-                        "projectName": project_name,
-                        "deploymentName": deployment_name,
+                        "projectName": CREDS.APP_PROJECT_NAME,
+                        "deploymentName": CREDS.APP_DEPLOYMENT_NAME,
                         "verbose": True
                     }
                 }
@@ -114,4 +110,13 @@ class MyBot(ActivityHandler):
         formatted_query = ''.join(keyword_list)
 
         return formatted_query      
+
+    async def on_members_added_activity(
+        self,
+        members_added: ChannelAccount,
+        turn_context: TurnContext
+    ):
+        for member_added in members_added:
+            if member_added.id != turn_context.activity.recipient.id:
+                await turn_context.send_activity("Hello and welcome! What would you like to do today?")
           
