@@ -5,3 +5,4 @@ botbuilder-schema
 cookiecutter==1.7.0
 azure-core
 azure-ai-language-conversations
+google-api-python-client

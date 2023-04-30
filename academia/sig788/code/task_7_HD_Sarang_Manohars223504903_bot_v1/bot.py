@@ -1,6 +1,9 @@
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount, Activity, ActivityTypes
+from botbuilder.core import MessageFactory
 import requests
+from googleapiclient.discovery import build
+import base64
 
 from creds import DefaultCreds
 
@@ -10,34 +13,68 @@ class MyBot(ActivityHandler):
     def __init__(self):
         self.API_KEY = CREDS.APP_GS_API_KEY  # Replace with your actual API key
 
-    async def on_message_activity(self, turn_context: TurnContext):
-        # Read user's input from activity.text
-        user_input = turn_context.activity.text
-            
-        print("user_input: ", user_input)
+    async def on_message_activity(self, turn_context):
+    # Check if the user sent an image attachment
+        if turn_context.activity.attachments:
+            for attachment in turn_context.activity.attachments:
+                # Check if the attachment is an image
+                if attachment.content_type.startswith('image/'):
+                    # Get the binary data of the image
+                    raw_image_data = requests.get(attachment.content_url).content
+                    image_data = base64.b64encode(raw_image_data).decode('utf-8')
+                    
+                    # Define a ConversationRequest object to send the image to Google Search API
+                    result = await self.send_image(image_data)
 
-        # Format query
-        formatted_query = await self.format_query(user_input)   
+                    print("====================================",result)
 
-        # Call recommend_products function to get recommended products
-        result = await self.recommend_products(formatted_query)
+                    # Send the bot's response back to the user
+                    await turn_context.send_activity(MessageFactory.text(result.get_first_generated_message().message))
+                    return
+        # If the user did not send an image, process the message as text
+        else:
+            # Get the user's message from the turn context
+            user_input = turn_context.activity.text
 
-        # Send result back to user
-        reply_activity = Activity(
-            type=ActivityTypes.message,
-            text=result
-        )
-        print("Formatted query: ", formatted_query)
-        await turn_context.send_activity(reply_activity)
+            # Format query
+            formatted_query = await self.format_query(user_input)   
 
+            # Call recommend_products function to get recommended products
+            result = await self.recommend_products(formatted_query)
 
+            # Send result back to user
+            reply_activity = Activity(
+                type=ActivityTypes.message,
+                text=result
+            )
+            print("Formatted query: ", formatted_query)
+            await turn_context.send_activity(reply_activity)
+    
+    # Send image binary data for Google Search API
+    async def send_image(self, image_data):
+        service = build('customsearch', 'v1', developerKey=self.API_KEY)
+        # Send the image to the Google Custom Search API
+        image_request = {'image': image_data}
+        print(image_request)
+        results = service.cse().list(q='', searchType='image', imgSize='large', cx='b731f8a663d17422e', num=5, imgRequest=image_request).execute()
+
+        # Parse the response and send the URLs of the matching images to the user
+        urls = [result['link'] for result in results.get('items', [])]
+        if urls:
+            response = 'I found these images that match your image:\n\n'
+            response += '\n'.join(urls)
+        else:
+            response = 'I couldn\'t find any images that match your image.'
+        
+        return response
+    
     # Define function to recommend products
     async def recommend_products(self, formatted_query):
         # Set API endpoint and parameters
-        url = f'https://www.googleapis.com/customsearch/v1?key={self.API_KEY}&cx=b731f8a663d17422e&cr=countryIN&q={formatted_query}&num=5&safe=active'
+        text_search_url = f'https://www.googleapis.com/customsearch/v1?key={self.API_KEY}&cx=b731f8a663d17422e&cr=countryIN&q={formatted_query}&num=5&safe=active'
 
         # Send GET request to API endpoint
-        response = requests.get(url)
+        response = requests.get(text_search_url)
 
         # Check if request was successful
         if response.status_code == 200:
@@ -109,7 +146,7 @@ class MyBot(ActivityHandler):
 
         formatted_query = ''.join(keyword_list)
 
-        return formatted_query      
+        return formatted_query
 
     async def on_members_added_activity(
         self,
