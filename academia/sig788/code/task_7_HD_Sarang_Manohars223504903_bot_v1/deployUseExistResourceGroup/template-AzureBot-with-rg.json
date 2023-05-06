@@ -17,7 +17,7 @@
         },
         "azureBotRegion": {
             "type": "string",
-            "defaultValue": "global",
+            "defaultValue": "westeurope",
             "metadata": {
                 "description": "Specifies the location of the new AzureBot. Allowed values are: global(default), westeurope."
             }

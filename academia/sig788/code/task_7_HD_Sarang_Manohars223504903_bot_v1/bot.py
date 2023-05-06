@@ -1,36 +1,43 @@
-from botbuilder.core import ActivityHandler, TurnContext
-from botbuilder.schema import ChannelAccount, Activity, ActivityTypes
-from botbuilder.core import MessageFactory
+from botbuilder.core import ActivityHandler, TurnContext, MessageFactory
+from botbuilder.schema import ChannelAccount, Activity, ActivityTypes, CardAction, ActionTypes, SuggestedActions
+
 import requests
-from googleapiclient.discovery import build
-import base64
+import cv2
+import numpy as np
+
 
 from creds import DefaultCreds
-
 CREDS = DefaultCreds()
+
 
 class MyBot(ActivityHandler):
     def __init__(self):
-        self.API_KEY = CREDS.APP_GS_API_KEY  # Replace with your actual API key
-
-    async def on_message_activity(self, turn_context):
+        self.API_KEY = CREDS.APP_GS_API_KEY
+        
+                
+    async def on_message_activity(self, turn_context: TurnContext):
     # Check if the user sent an image attachment
         if turn_context.activity.attachments:
             for attachment in turn_context.activity.attachments:
                 # Check if the attachment is an image
                 if attachment.content_type.startswith('image/'):
-                    # Get the binary data of the image
-                    raw_image_data = requests.get(attachment.content_url).content
-                    image_data = base64.b64encode(raw_image_data).decode('utf-8')
-                    
+
+                    image_data = requests.get(attachment.content_url).content
+                                       
                     # Define a ConversationRequest object to send the image to Google Search API
-                    result = await self.send_image(image_data)
+                    dtct_obj = await self.detect_objects(image_data)
 
-                    print("====================================",result)
+                    result = await self.recommend_products("buy {}".format(dtct_obj))
 
-                    # Send the bot's response back to the user
-                    await turn_context.send_activity(MessageFactory.text(result.get_first_generated_message().message))
-                    return
+                    # Send result back to user
+                    reply_activity = Activity(
+                        type=ActivityTypes.message,
+                        text=result
+                    )
+                    print("Formatted query: ", result)
+                    await turn_context.send_activity(reply_activity)
+                    await turn_context.send_activity("Would you like to provide additional details about your product, like brand, price range, intended use or purpose?")
+                    
         # If the user did not send an image, process the message as text
         else:
             # Get the user's message from the turn context
@@ -49,25 +56,13 @@ class MyBot(ActivityHandler):
             )
             print("Formatted query: ", formatted_query)
             await turn_context.send_activity(reply_activity)
-    
-    # Send image binary data for Google Search API
-    async def send_image(self, image_data):
-        service = build('customsearch', 'v1', developerKey=self.API_KEY)
-        # Send the image to the Google Custom Search API
-        image_request = {'image': image_data}
-        print(image_request)
-        results = service.cse().list(q='', searchType='image', imgSize='large', cx='b731f8a663d17422e', num=5, imgRequest=image_request).execute()
-
-        # Parse the response and send the URLs of the matching images to the user
-        urls = [result['link'] for result in results.get('items', [])]
-        if urls:
-            response = 'I found these images that match your image:\n\n'
-            response += '\n'.join(urls)
-        else:
-            response = 'I couldn\'t find any images that match your image.'
-        
-        return response
-    
+            await turn_context.send_activity("If you would like to me to search more please share specific details or ask me another product for recommendation.")
+    async def button(self, turn_context: TurnContext):
+        brand_options = ['Apple', 'Dell', 'HP', 'Lenovo', 'Asus']
+        reply = MessageFactory.text("Select a brand")
+        buttons = [CardAction(type=ActionTypes.im_back, title=brand, value=brand) for brand in brand_options]
+        reply.suggested_actions = SuggestedActions(actions=buttons)
+        return await turn_context.send_activity(reply)
     # Define function to recommend products
     async def recommend_products(self, formatted_query):
         # Set API endpoint and parameters
@@ -156,4 +151,44 @@ class MyBot(ActivityHandler):
         for member_added in members_added:
             if member_added.id != turn_context.activity.recipient.id:
                 await turn_context.send_activity("Hello and welcome! What would you like to do today?")
+
+
+    # Set up the Custom Vision API call
+    async def detect_objects(self, image_data):
+        image = np.asarray(bytearray(image_data), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+        # Perform object detection using OpenCV
+        # Replace this with your own object detection code
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  
+
+        # Compress the image as a JPEG image
+        _, encoded_frame = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+
+        headers = {
+            "Prediction-Key": CREDS.CV_PRED_KEY,
+            "Content-Type": 'application/json',
+        }
+
+        body = {
+        "Data": img.tobytes(),
+        }
+        
+        response = requests.post(CREDS.CV_PRED_URL, headers=headers, json=body, data=encoded_frame.tobytes())
+        response.raise_for_status()
+        predictions = response.json()["predictions"]
+
+        if response.status_code == requests.codes.ok:
+            query = self.detected_objects_2_query(predictions)
+            return query
+        else:
+            return None
+
+    def detected_objects_2_query(self, predictions):
+        max_prediction = max(predictions, key=lambda x: x["probability"]) # get highest probability
+        dtct_obj = max_prediction["tagName"] # get tag
+        return dtct_obj
+
+    
+
           

@@ -8,4 +8,4 @@ az deployment group create --resource-group "sig788task7" --template-file "templ
 
 az deployment group create --resource-group "sig788task7" --template-file "template-AzureBot-with-rg.json" --parameters "@parameters-for-template-AzureBot-with-rg.json"
 
-az webapp deployment source config-zip --resource-group "sig788task7" --name "sig788task7-webapp" --src "sig788task7.zip"
+az webapp deployment source config-zip --resource-group "sig788task7" --name "sig788task7-webapp" --src "bot.zip"

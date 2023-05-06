@@ -9,7 +9,7 @@
             "value": "S1"
         },
         "azureBotRegion": {
-            "value": "global"
+            "value": "westeurope"
         },
         "botEndpoint": {
             "value": "https://sig788task7-webapp.azurewebsites.net/api/messages"
