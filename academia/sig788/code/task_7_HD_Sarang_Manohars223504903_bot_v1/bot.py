@@ -56,13 +56,7 @@ class MyBot(ActivityHandler):
             )
             print("Formatted query: ", formatted_query)
             await turn_context.send_activity(reply_activity)
-            await turn_context.send_activity("If you would like to me to search more please share specific details or ask me another product for recommendation.")
-    async def button(self, turn_context: TurnContext):
-        brand_options = ['Apple', 'Dell', 'HP', 'Lenovo', 'Asus']
-        reply = MessageFactory.text("Select a brand")
-        buttons = [CardAction(type=ActionTypes.im_back, title=brand, value=brand) for brand in brand_options]
-        reply.suggested_actions = SuggestedActions(actions=buttons)
-        return await turn_context.send_activity(reply)
+            await turn_context.send_activity("If you would like me to help you with recommendation, please share specific details or ask me about another product.")
     # Define function to recommend products
     async def recommend_products(self, formatted_query):
         # Set API endpoint and parameters
